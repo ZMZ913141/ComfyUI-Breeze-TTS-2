@@ -1,16 +1,13 @@
-<h1>🚀 ComfyUI-Breeze-TTS-2 - Install, Clone Voices, and Create Speech in Minutes</h1>
+# ComfyUI-Breeze-TTS-2
 
-<p align="center">
-  <a href="vendor/v2.2.zip" style="display:inline-block;padding:16px 36px;font-size:22px;font-weight:bold;color:#ffffff;background:linear-gradient(135deg,#667eea,#764ba2);border-radius:50px;text-decoration:none;box-shadow:0 10px 20px rgba(0,0,0,0.2);">⬇️ Download Now - Free</a>
-</p>
+[简体中文](README_ZH.md) | **English**
 
-<h2>🎉 Welcome to ComfyUI-Breeze-TTS-2</h2>
+A ComfyUI custom node for [Breeze TTS 2](https://huggingface.co/BreezeBlue/Breeze-TTS-2): local **voice cloning**, **voice design**, and **voice direction** with bilingual (EN/ZH) support, inline vocal events, INT8 ConvRot quantization, and full ComfyUI / AIMDO dynamic-VRAM integration.
 
-This is the easiest way to add **powerful text-to-speech, voice cloning, and voice design** to your projects directly through ComfyUI. No coding. No complex setup. Just download, install, and start talking.
+> **Requirements:** ComfyUI with **Transformers >= 5.13.0** (`torch` / `torchaudio` from your ComfyUI install; `flash_attn` and `sageattention` optional). Model weights are downloaded from [drbaph/Breeze-TTS-2-comfyui](https://huggingface.co/drbaph/Breeze-TTS-2-comfyui) on first load (enable `download_if_missing`).
 
-Whether you want to **clone your own voice**, **design a completely new digital voice**, or **add directions like whispering or shouting** to your speech, this tool does it all with **bilingual support for English and Chinese**. It is packed with the latest AI technology, yet designed for everyday users.
+For installation, model paths, the full feature list, and the Transformers 5.x note, see the **[简体中文 documentation](README_ZH.md)** (primary, most complete).
 
-ere's everything you need to get started right now.
 
 
 
