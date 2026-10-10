@@ -1,0 +1,21 @@
+ComfyUI-Breeze-TTS-2
+=====================
+
+本仓库基于以下上游项目，依据 Apache License 2.0 进行修改与再分发：
+
+  上游项目 : saganaki22/Breeze-TTS-2 (ComfyUI node)
+  上游地址 : https://github.com/saganaki22/Breeze-TTS-2
+  上游许可 : Apache License 2.0  (Copyright 2026 saganaki22)
+
+本分支在原始工作之上做了功能增强（多人说话人分离、MossFormer2 物理
+分离、克隆质量过滤与拼接兜底等）。依据 Apache-2.0 第 4(b) 条，已修改的
+文件均带有相应变更说明；本 NOTICE 用于保留上游作者的署名与归因。
+
+  - 原始代码版权：Copyright 2026 saganaki22（Apache-2.0）
+  - 本分支修改：Copyright 2026 ZMZ913141
+  - 仓库内 vendor/ 下的第三方代码保留其各自的 Apache-2.0 许可
+    （Copyright The Qwen team, Alibaba Group）。
+  - Breeze-TTS-2 模型权重 / 衍生 checkpoints 不适用本仓库的 Apache-2.0，
+    其许可见 BreezeBlue Research and Non-Commercial License。
+
+本仓库以 Apache License 2.0 发布。
