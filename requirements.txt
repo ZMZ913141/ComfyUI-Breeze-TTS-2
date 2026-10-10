@@ -1,0 +1,20 @@
+# torch, torchaudio, and transformers are intentionally not pinned here.
+# This nodepack requires Transformers 5.13.0+ (no downgrade). The vendored
+# Qwen3-TTS codec was patched to use merge_with_config_defaults instead of the
+# removed check_model_inputs decorator, and the audio decode stage (codes ->
+# waveform) no longer crashes on the missing `inspect` import.
+accelerate
+numpy
+safetensors
+soundfile
+huggingface_hub
+tqdm
+
+# 多人说话人分离 / 背景音保留（本地离线）
+silero-vad
+onnxruntime
+scikit-learn
+audio-separator
+noisereduce
+librosa
+torchaudio

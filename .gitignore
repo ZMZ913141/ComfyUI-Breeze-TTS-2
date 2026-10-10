@@ -1,0 +1,35 @@
+# ---- Python 缓存 / 编译产物 ----
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.pytest_cache/
+
+# ---- 模型权重（体积巨大，不入库；请按 README 下载）----
+models/
+*.ckpt
+*.safetensors
+
+# ---- 运行输出 ----
+BreezeTTS2_Speakers/
+output/
+
+# ---- 分离器 / 节点产生的临时音频（曾污染仓库目录）----
+tmp*.wav
+*_(Vocals)_*.wav
+*_(Instrumental)_*.wav
+
+# ---- 本地调试脚本与产物 ----
+_diag*
+_dbg_*
+_tmp*
+_cv_*
+test_out.txt
+params.txt
+
+# ---- 日志 / 编辑器 / 系统 ----
+*.log
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

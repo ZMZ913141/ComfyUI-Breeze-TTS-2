@@ -1,0 +1,425 @@
+{
+ "id": "breeze-tts2-multi-speaker-separation",
+ "revision": 0,
+ "last_node_id": 7,
+ "last_link_id": 16,
+ "nodes": [
+  {
+   "id": 1,
+   "type": "LoadAudio",
+   "pos": [
+    40,
+    40
+   ],
+   "size": [
+    350,
+    136
+   ],
+   "flags": {},
+   "order": 3,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "audio",
+     "type": "AUDIO",
+     "slot_index": 0,
+     "links": [
+      10
+     ]
+    }
+   ],
+   "properties": {
+    "cnr_id": "comfy-core",
+    "ver": "0.34.0",
+    "Node name for S&R": "LoadAudio",
+    "widgets": {
+     "upload": "audio"
+    },
+    "ue_properties": {
+     "widget_ue_connectable": {},
+     "version": "7.8",
+     "input_ue_unconnectable": {}
+    }
+   },
+   "widgets_values": [
+    "stewie.wav",
+    null,
+    null
+   ],
+   "widgets_values_named": {
+    "audio": "stewie.wav",
+    "upload": null
+   },
+   "color": "#432",
+   "bgcolor": "#653"
+  },
+  {
+   "id": 2,
+   "type": "BreezeTTS2MultiSpeakerExtractor",
+   "pos": [
+    40,
+    260
+   ],
+   "size": [
+    420,
+    360
+   ],
+   "flags": {},
+   "order": 0,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "audio",
+     "type": "AUDIO",
+     "link": 10
+    }
+   ],
+   "outputs": [
+    {
+     "name": "speakers",
+     "type": "SPEAKERS",
+     "slot_index": 0,
+     "links": [
+      11
+     ]
+    },
+    {
+     "name": "report",
+     "type": "STRING",
+     "slot_index": 1,
+     "links": []
+    }
+   ],
+   "properties": {
+    "ue_properties": {
+     "widget_ue_connectable": {},
+     "version": "7.8",
+     "input_ue_unconnectable": {}
+    }
+   },
+   "widgets_values": [
+    "人声(去背景)",
+    "enable",
+    "自动检测",
+    "自动切片(子文件夹)",
+    1.0,
+    3.0,
+    "24000",
+    "enable",
+    0.45,
+    0.4,
+    "",
+    "Speaker"
+   ],
+   "color": "#222",
+   "bgcolor": "#000"
+  },
+  {
+   "id": 3,
+   "type": "BreezeTTS2SpeakerSelector",
+   "pos": [
+    500,
+    260
+   ],
+   "size": [
+    380,
+    140
+   ],
+   "flags": {},
+   "order": 0,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "speakers",
+     "type": "SPEAKERS",
+     "link": 11
+    }
+   ],
+   "outputs": [
+    {
+     "name": "audio",
+     "type": "AUDIO",
+     "slot_index": 0,
+     "links": [
+      13
+     ]
+    },
+    {
+     "name": "info",
+     "type": "STRING",
+     "slot_index": 1,
+     "links": []
+    }
+   ],
+   "properties": {
+    "ue_properties": {
+     "widget_ue_connectable": {},
+     "version": "7.8",
+     "input_ue_unconnectable": {}
+    }
+   },
+   "widgets_values": [
+    0,
+    -1
+   ],
+   "color": "#222",
+   "bgcolor": "#000"
+  },
+  {
+   "id": 4,
+   "type": "BreezeTTS2LoadModel",
+   "pos": [
+    40,
+    520
+   ],
+   "size": [
+    622.8915258863367,
+    179.71575366584324
+   ],
+   "flags": {},
+   "order": 9,
+   "mode": 4,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "breeze_model",
+     "type": "BREEZE_TTS2_MODEL",
+     "slot_index": 0,
+     "links": [
+      15
+     ]
+    }
+   ],
+   "properties": {
+    "ue_properties": {
+     "widget_ue_connectable": {},
+     "input_ue_unconnectable": {},
+     "version": "7.8"
+    },
+    "cnr_id": "comfyui-breeze-tts-2",
+    "ver": "0.1.2",
+    "Node name for S&R": "BreezeTTS2LoadModel"
+   },
+   "widgets_values": [
+    "bf16 (best quality)",
+    "auto",
+    "auto",
+    "auto",
+    "cuda_graphs",
+    false
+   ],
+   "widgets_values_named": {
+    "model": "bf16 (best quality)",
+    "dtype": "auto",
+    "device": "auto",
+    "attention": "auto",
+    "decode_mode": "cuda_graphs",
+    "download_if_missing": false
+   },
+   "color": "#432",
+   "bgcolor": "#653"
+  },
+  {
+   "id": 5,
+   "type": "BreezeTTS2VoiceClone",
+   "pos": [
+    920,
+    260
+   ],
+   "size": [
+    440,
+    500
+   ],
+   "flags": {},
+   "order": 14,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "breeze_model",
+     "type": "BREEZE_TTS2_MODEL",
+     "link": 15
+    },
+    {
+     "name": "reference_audio",
+     "type": "AUDIO",
+     "link": 13
+    },
+    {
+     "name": "reference_text",
+     "type": "STRING",
+     "widget": {
+      "name": "reference_text"
+     },
+     "link": null
+    }
+   ],
+   "outputs": [
+    {
+     "name": "audio",
+     "type": "AUDIO",
+     "slot_index": 0,
+     "links": [
+      16
+     ]
+    }
+   ],
+   "properties": {
+    "cnr_id": "comfyui-breeze-tts-2",
+    "ver": "0.1.0",
+    "Node name for S&R": "BreezeTTS2VoiceClone",
+    "ue_properties": {
+     "widget_ue_connectable": {
+      "reference_text": true
+     },
+     "version": "7.8",
+     "input_ue_unconnectable": {}
+    }
+   },
+   "widgets_values": [
+    "(sigh) Breeze TTS 2 is an absolutely incredible text-to-speech model, bringing seriously impressive voice quality, expression, and natural speech generation directly into ComfyUI. (clears throat) You can experiment with voice design and reference-guided voice direction, making it incredibly powerful for creators.\n\nAnd getting started is easy: you can download the ComfyUI nodes from the Breeze-TTS-2 project, along with quantized models and ready-to-use versions from DrBaph’s Hugging Face. (laugh) It’s fast, flexible, open, and genuinely feels like a huge step forward for local AI voice generation. If you’re using ComfyUI for creative work, Breeze TTS 2 is definitely one to check out.",
+    "",
+    1,
+    1500,
+    0.9,
+    50,
+    1,
+    1.1,
+    0.9,
+    50,
+    1,
+    1526248169,
+    "fixed"
+   ],
+   "widgets_values_named": {
+    "text": "(sigh) Breeze TTS 2 is an absolutely incredible text-to-speech model, bringing seriously impressive voice quality, expression, and natural speech generation directly into ComfyUI. (clears throat) You can experiment with voice design and reference-guided voice direction, making it incredibly powerful for creators.\n\nAnd getting started is easy: you can download the ComfyUI nodes from the Breeze-TTS-2 project, along with quantized models and ready-to-use versions from DrBaph’s Hugging Face. (laugh) It’s fast, flexible, open, and genuinely feels like a huge step forward for local AI voice generation. If you’re using ComfyUI for creative work, Breeze TTS 2 is definitely one to check out.",
+    "reference_text": "",
+    "cfg_scale": 1,
+    "max_new_tokens": 1500,
+    "temperature": 0.9,
+    "top_k": 50,
+    "top_p": 1,
+    "repetition_penalty": 1.1,
+    "depth_temperature": 0.9,
+    "depth_top_k": 50,
+    "depth_top_p": 1,
+    "seed": 1526248169,
+    "control_after_generate": "fixed"
+   },
+   "color": "#2a363b",
+   "bgcolor": "#3f5159"
+  },
+  {
+   "id": 6,
+   "type": "PreviewAudio",
+   "pos": [
+    1380,
+    260
+   ],
+   "size": [
+    402.9346453706189,
+    98.9633169328672
+   ],
+   "flags": {},
+   "order": 19,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "audio",
+     "type": "AUDIO",
+     "link": 16
+    }
+   ],
+   "outputs": [],
+   "properties": {
+    "cnr_id": "comfy-core",
+    "ver": "0.34.0",
+    "Node name for S&R": "PreviewAudio",
+    "ue_properties": {
+     "widget_ue_connectable": {},
+     "version": "7.8",
+     "input_ue_unconnectable": {}
+    }
+   },
+   "widgets_values": [],
+   "widgets_values_named": {},
+   "color": "#2a363b",
+   "bgcolor": "#3f5159"
+  },
+  {
+   "id": 7,
+   "type": "MarkdownNote",
+   "pos": [
+    40,
+    -260
+   ],
+   "size": [
+    430,
+    260
+   ],
+   "flags": {},
+   "order": 0,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [],
+   "properties": {
+    "ue_properties": {
+     "widget_ue_connectable": {},
+     "version": "7.8",
+     "input_ue_unconnectable": {}
+    }
+   },
+   "widgets_values": [
+    "## 多人说话人分离 + 背景音保留\n\n1. **Load Audio** 载入多人对话（可含背景音乐）音频。\n2. **Breeze TTS 2 多人说话人分离**：自动分离各说话人并写文件到 `ComfyUI/output/BreezeTTS2_Speakers/`。\n   - 通道：`人声(去背景)` 最适合克隆；`人声+背景`/`仅背景音` 保留背景。\n   - 导出：`自动切片` 每说话人一个子文件夹；`原样导出` 单人单文件。\n3. **说话人选择**：挑出某说话人(或某一段切片)接 **Voice Clone** 克隆。\n\n提示：背景音乐若含人声会被误判为说话人，可调高 `min_speaker_duration` 或强制 `num_speakers`。"
+   ],
+   "color": "#222",
+   "bgcolor": "#000"
+  }
+ ],
+ "links": [
+  [
+   10,
+   1,
+   0,
+   2,
+   0,
+   "AUDIO"
+  ],
+  [
+   11,
+   2,
+   0,
+   3,
+   0,
+   "SPEAKERS"
+  ],
+  [
+   13,
+   3,
+   0,
+   5,
+   1,
+   "AUDIO"
+  ],
+  [
+   15,
+   4,
+   0,
+   5,
+   0,
+   "BREEZE_TTS2_MODEL"
+  ],
+  [
+   16,
+   5,
+   0,
+   6,
+   0,
+   "AUDIO"
+  ]
+ ],
+ "groups": [],
+ "config": {},
+ "extra": {},
+ "version": 0.4
+}
