@@ -116,44 +116,38 @@ A: 直接写中文文本即可，模型支持中英双语。语气事件中文�
 
 ---
 
-## 七、多人说话人分离 + 背景音保留（新增）
+## 七、MOSS 转写 + 说话人分离（替代旧的多人说话人分离）
 
-当你有一段**多人对话、且带背景音乐**的音频，想从中提取出每个人干净的可克隆音源时使用。
+当你有一段**多人对话、且带背景音乐**的音频，想做转写 + 说话人分离、并提取出某人干净的可克隆音源时使用。基于 [MOSS-Transcribe-Diarize 0.9B](https://github.com/OpenMOSS/MOSS-Transcribe-Diarize) 端到端模型，无需单独的人声分离 / VAD / 聚类模型。
 
 ### 工作流
 ```
-[Load Audio] → [Breeze TTS 2 多人说话人分离] → [Breeze TTS 2 说话人选择] → [声音克隆]
+[Load Audio] → [Breeze TTS 2 MOSS 转写分离] → ( segments ) → [Breeze TTS 2 MOSS 说话人提取] → [声音克隆]
+                                                   └─ ( script ) → [Breeze TTS 2 多说话人对话]
 ```
 
-### 节点 1：Breeze TTS 2 多人说话人分离
-自动完成：人声/背景分离 → VAD → 滑窗 → wespeaker 声纹向量 → 聚类 → 按说话人切片，并把文件写到 `ComfyUI/output/BreezeTTS2_Speakers/run_时间戳/`。
+### 节点 1：Breeze TTS 2 MOSS 转写分离
+端到端完成：长音频转写 → 说话人分离（[S01]/[S02]…）→ 时间戳，输出三样东西：
+- `transcript`：带说话人标签与时间戳的原始转录文本；
+- `segments`：结构化分段（含 `start`/`end`/`speaker`/`text`）；
+- `script`：`S01: 文本` 剧本，可直接接「多说话人对话」节点做 TTS。
 
 **关键参数**
 | 参数 | 推荐 | 说明 |
 |---|---|---|
-| extract_channel | 人声(去背景) | 最适合克隆；人声+背景 保留背景混音；仅背景音 只导出背景/伴奏通道 |
-| separate_vocals | enable | 用 mel_band_roformer 分离人声与背景（首次自动下载模型；公司代理 SSL 报错会自动退化为不校验下载） |
-| num_speakers | 自动检测 | 已知人数时强制指定更稳（如 4） |
-| export_mode | 自动切片(子文件夹) | 每说话人一个子文件夹、每段单独 wav；原样导出=单人单文件保留原始时间轴 |
-| min_segment | 1.0 | 单段最短秒数，更短丢弃 |
-| min_speaker_duration | 3.0 | 总语音短于此的"说话人"视为背景音乐人声/噪声片段并丢弃（设为0保留全部） |
-| target_sr | 24000 | 导出采样率，克隆建议 24000 |
-| clean_clips | enable | 每段降噪(去背景通道)+峰值归一化到 -3dB，产出更干净的可克隆音源 |
-| cluster_threshold | 0.45 | 声纹聚类余弦距离阈值：越小越细(易过拆)，越大越粗(易并人) |
+| model | OpenMOSS-Team/MOSS-Transcribe-Diarize | 首次运行自动下载（约 2GB）；可填本地路径 |
+| device | auto | 有 CUDA 用 cuda:0，否则 cpu |
+| dtype | auto | CUDA 用 bf16、CPU 用 fp32 |
+| max_new_tokens | 5120（长音频调大到 65536） | 避免长音频被截断 |
 
-**两种导出模式**
-- **原样导出（单人单文件）**：每个说话人一个 wav，保留原始时间轴（他人说话/停顿处为静音）。
-- **自动切片（子文件夹）**：每个说话人一个子文件夹 `Speaker_1/seg_001.wav …`，每段 utterance 单独一个文件，另有 `Speaker_1.wav` 主拼接文件。
-
-### 节点 2：Breeze TTS 2 说话人选择
-从分离结果里挑出某一说话人（或某一段切片）接克隆流程：
-- `speaker_index`：选第几个说话人（0=说话最多者）
-- `segment_index`：-1 返回该说话人主音频；≥0 返回第 N 段切片
+### 节点 2：Breeze TTS 2 MOSS 说话人提取
+按说话人下标从**原始音频**按时间戳截取该说话人的所有片段并拼接，产出干净的克隆参考音频 + 该说话人文字稿：
+- `speaker_index`：选第几个说话人（0=S01、1=S02 …，按出现顺序）
+- `pad_seconds`：每段前后留的静音 pad，避免切在字中间破音
 
 ### 示例工作流
-`example_workflows/08-多人说话人分离.json` 已接好：Load Audio → 分离 → 选择 → 加载模型 → 声音克隆 → 试听。
+`example_workflows/09-MOSS转写分离.json` 已接好：Load Audio → 转写分离 → 说话人提取 → 加载模型 → 声音克隆 → 试听。
 
 ### 提示
-- 背景音乐若本身含人声（如婚礼/喜庆伴奏带唱），会被 VAD 误判为额外说话人；此时调高 `min_speaker_duration` 或强制 `num_speakers` 即可。
-- 声纹引擎用本地 wespeaker voxceleb-resnet34 ONNX（离线，无需联网），同人余弦相似度~1.0、异人~0.25，区分度很高。
-- "仅背景音"通道可单独导出伴奏，用于混音或保留 BGM。
+- MOSS 把 ASR 与 diarization 联合建模，说话人标签与文本、时间戳天然对齐，对长音频与重叠语音更鲁棒。
+- 首次运行需联网下载模型权重；缺少依赖时报错提示 `pip install moss-transcribe-diarize`，并确保 `transformers >= 5.13`。

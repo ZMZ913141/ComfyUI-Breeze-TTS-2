@@ -98,17 +98,14 @@ try:
 
     from .nodes import NODE_CLASS_MAPPINGS as _NODES, NODE_DISPLAY_NAME_MAPPINGS as _NODE_NAMES
     from .whisper import NODE_CLASS_MAPPINGS as _WHISPER, NODE_DISPLAY_NAME_MAPPINGS as _WHISPER_NAMES
-    from .audio_preprocess import NODE_CLASS_MAPPINGS as _AP, NODE_DISPLAY_NAME_MAPPINGS as _AP_NAMES
-    from .speaker_extractor import NODE_CLASS_MAPPINGS as _SE, NODE_DISPLAY_NAME_MAPPINGS as _SE_NAMES
+    from .moss_nodes import NODE_CLASS_MAPPINGS as _MOSS, NODE_DISPLAY_NAME_MAPPINGS as _MOSS_NAMES
 
     NODE_CLASS_MAPPINGS.update(_NODES)
     NODE_CLASS_MAPPINGS.update(_WHISPER)
-    NODE_CLASS_MAPPINGS.update(_AP)
-    NODE_CLASS_MAPPINGS.update(_SE)
+    NODE_CLASS_MAPPINGS.update(_MOSS)
     NODE_DISPLAY_NAME_MAPPINGS.update(_NODE_NAMES)
     NODE_DISPLAY_NAME_MAPPINGS.update(_WHISPER_NAMES)
-    NODE_DISPLAY_NAME_MAPPINGS.update(_AP_NAMES)
-    NODE_DISPLAY_NAME_MAPPINGS.update(_SE_NAMES)
+    NODE_DISPLAY_NAME_MAPPINGS.update(_MOSS_NAMES)
     logger.info("Registered %d node(s).", len(NODE_CLASS_MAPPINGS))
 except Exception:
     logger.exception("Failed to register Breeze TTS 2 nodes.")

@@ -9,12 +9,9 @@ safetensors
 soundfile
 huggingface_hub
 tqdm
-
-# 多人说话人分离 / 背景音保留（本地离线）
-silero-vad
-onnxruntime
-scikit-learn
-audio-separator
-noisereduce
-librosa
 torchaudio
+
+# 转写 + 说话人分离（MOSS-Transcribe-Diarize 端到端，替代旧的人声分离/聚类流水线）
+# 注意：该包未发布到 PyPI，只能从 GitHub 源码安装；要求 Transformers >= 5.13，与本插件一致。
+# torch 为该包的“可选依赖”，本机 ComfyUI 已自带，故不装 [torch-runtime]，避免重复拉取 torch。
+moss-transcribe-diarize @ git+https://github.com/OpenMOSS/MOSS-Transcribe-Diarize.git

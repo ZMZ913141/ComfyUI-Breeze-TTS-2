@@ -1,5 +1,5 @@
 {
- "id": "breeze-tts2-multi-speaker-separation",
+ "id": "breeze-tts2-moss-transcribe-diarize",
  "revision": 0,
  "last_node_id": 7,
  "last_link_id": 16,
@@ -25,7 +25,8 @@
      "type": "AUDIO",
      "slot_index": 0,
      "links": [
-      10
+      10,
+      12
      ]
     }
    ],
@@ -56,14 +57,14 @@
   },
   {
    "id": 2,
-   "type": "BreezeTTS2MultiSpeakerExtractor",
+   "type": "BreezeTTS2MOSSDiarize",
    "pos": [
     40,
     260
    ],
    "size": [
-    420,
-    360
+    460,
+    260
    ],
    "flags": {},
    "order": 0,
@@ -77,21 +78,30 @@
    ],
    "outputs": [
     {
-     "name": "speakers",
-     "type": "SPEAKERS",
+     "name": "transcript",
+     "type": "STRING",
      "slot_index": 0,
+     "links": []
+    },
+    {
+     "name": "segments",
+     "type": "MOSS_SEGMENTS",
+     "slot_index": 1,
      "links": [
       11
      ]
     },
     {
-     "name": "report",
+     "name": "script",
      "type": "STRING",
-     "slot_index": 1,
+     "slot_index": 2,
      "links": []
     }
    ],
    "properties": {
+    "cnr_id": "comfyui-breeze-tts-2",
+    "ver": "0.1.0",
+    "Node name for S&R": "BreezeTTS2MOSSDiarize",
     "ue_properties": {
      "widget_ue_connectable": {},
      "version": "7.8",
@@ -99,40 +109,45 @@
     }
    },
    "widgets_values": [
-    "人声(去背景)",
-    "enable",
-    "自动检测",
-    "自动切片(子文件夹)",
-    1.0,
-    3.0,
-    "24000",
-    "enable",
-    0.45,
-    0.4,
-    "",
-    "Speaker"
+    "OpenMOSS-Team/MOSS-Transcribe-Diarize",
+    "auto",
+    "auto",
+    5120,
+    true
    ],
+   "widgets_values_named": {
+    "model": "OpenMOSS-Team/MOSS-Transcribe-Diarize",
+    "device": "auto",
+    "dtype": "auto",
+    "max_new_tokens": 5120,
+    "download_if_missing": true
+   },
    "color": "#222",
    "bgcolor": "#000"
   },
   {
    "id": 3,
-   "type": "BreezeTTS2SpeakerSelector",
+   "type": "BreezeTTS2MOSSSpeakerExtract",
    "pos": [
-    500,
+    540,
     260
    ],
    "size": [
     380,
-    140
+    150
    ],
    "flags": {},
    "order": 0,
    "mode": 0,
    "inputs": [
     {
-     "name": "speakers",
-     "type": "SPEAKERS",
+     "name": "audio",
+     "type": "AUDIO",
+     "link": 12
+    },
+    {
+     "name": "segments",
+     "type": "MOSS_SEGMENTS",
      "link": 11
     }
    ],
@@ -146,13 +161,22 @@
      ]
     },
     {
-     "name": "info",
+     "name": "transcript",
      "type": "STRING",
      "slot_index": 1,
+     "links": []
+    },
+    {
+     "name": "segments",
+     "type": "MOSS_SEGMENTS",
+     "slot_index": 2,
      "links": []
     }
    ],
    "properties": {
+    "cnr_id": "comfyui-breeze-tts-2",
+    "ver": "0.1.0",
+    "Node name for S&R": "BreezeTTS2MOSSSpeakerExtract",
     "ue_properties": {
      "widget_ue_connectable": {},
      "version": "7.8",
@@ -161,8 +185,12 @@
    },
    "widgets_values": [
     0,
-    -1
+    0.1
    ],
+   "widgets_values_named": {
+    "speaker_index": 0,
+    "pad_seconds": 0.1
+   },
    "color": "#222",
    "bgcolor": "#000"
   },
@@ -171,7 +199,7 @@
    "type": "BreezeTTS2LoadModel",
    "pos": [
     40,
-    520
+    540
    ],
    "size": [
     622.8915258863367,
@@ -224,7 +252,7 @@
    "id": 5,
    "type": "BreezeTTS2VoiceClone",
    "pos": [
-    920,
+    940,
     260
    ],
    "size": [
@@ -246,7 +274,7 @@
      "link": 13
     },
     {
-     "name": "reference_text",
+    "name": "reference_text",
      "type": "STRING",
      "widget": {
       "name": "reference_text"
@@ -277,7 +305,7 @@
     }
    },
    "widgets_values": [
-    "(sigh) Breeze TTS 2 is an absolutely incredible text-to-speech model, bringing seriously impressive voice quality, expression, and natural speech generation directly into ComfyUI. (clears throat) You can experiment with voice design and reference-guided voice direction, making it incredibly powerful for creators.\n\nAnd getting started is easy: you can download the ComfyUI nodes from the Breeze-TTS-2 project, along with quantized models and ready-to-use versions from DrBaph’s Hugging Face. (laugh) It’s fast, flexible, open, and genuinely feels like a huge step forward for local AI voice generation. If you’re using ComfyUI for creative work, Breeze TTS 2 is definitely one to check out.",
+    "(sigh) Breeze TTS 2 is an absolutely incredible text-to-speech model, bringing seriously impressive voice quality, expression, and natural speech generation directly into ComfyUI.",
     "",
     1,
     1500,
@@ -292,7 +320,7 @@
     "fixed"
    ],
    "widgets_values_named": {
-    "text": "(sigh) Breeze TTS 2 is an absolutely incredible text-to-speech model, bringing seriously impressive voice quality, expression, and natural speech generation directly into ComfyUI. (clears throat) You can experiment with voice design and reference-guided voice direction, making it incredibly powerful for creators.\n\nAnd getting started is easy: you can download the ComfyUI nodes from the Breeze-TTS-2 project, along with quantized models and ready-to-use versions from DrBaph’s Hugging Face. (laugh) It’s fast, flexible, open, and genuinely feels like a huge step forward for local AI voice generation. If you’re using ComfyUI for creative work, Breeze TTS 2 is definitely one to check out.",
+    "text": "(sigh) Breeze TTS 2 is an absolutely incredible text-to-speech model, bringing seriously impressive voice quality, expression, and natural speech generation directly into ComfyUI.",
     "reference_text": "",
     "cfg_scale": 1,
     "max_new_tokens": 1500,
@@ -313,7 +341,7 @@
    "id": 6,
    "type": "PreviewAudio",
    "pos": [
-    1380,
+    1400,
     260
    ],
    "size": [
@@ -354,7 +382,7 @@
     -260
    ],
    "size": [
-    430,
+    450,
     260
    ],
    "flags": {},
@@ -370,7 +398,7 @@
     }
    },
    "widgets_values": [
-    "## 多人说话人分离 + 背景音保留\n\n1. **Load Audio** 载入多人对话（可含背景音乐）音频。\n2. **Breeze TTS 2 多人说话人分离**：自动分离各说话人并写文件到 `ComfyUI/output/BreezeTTS2_Speakers/`。\n   - 通道：`人声(去背景)` 最适合克隆；`人声+背景`/`仅背景音` 保留背景。\n   - 导出：`自动切片` 每说话人一个子文件夹；`原样导出` 单人单文件。\n3. **说话人选择**：挑出某说话人(或某一段切片)接 **Voice Clone** 克隆。\n\n提示：背景音乐若含人声会被误判为说话人，可调高 `min_speaker_duration` 或强制 `num_speakers`。"
+    "## MOSS 转写 + 说话人分离\n\n1. **Load Audio** 载入多人对话（可含背景音乐）音频。\n2. **Breeze TTS 2 MOSS 转写分离**：端到端完成转写 + 说话人分离（[S01]/[S02] + 时间戳）。首次运行自动下载 OpenMOSS 模型（约 2GB）。\n3. **Breeze TTS 2 MOSS 说话人提取**：按说话人下标从原始音频截取干净片段，接 **Voice Clone** 克隆。\n\n提示：转写分离节点还会输出 `script`，可直接喂给「多说话人对话」节点生成多人对话 TTS；长音频请把 `max_new_tokens` 调大到 65536。"
    ],
    "color": "#222",
    "bgcolor": "#000"
@@ -388,10 +416,18 @@
   [
    11,
    2,
+   1,
+   3,
+   1,
+   "MOSS_SEGMENTS"
+  ],
+  [
+   12,
+   1,
    0,
    3,
    0,
-   "SPEAKERS"
+   "AUDIO"
   ],
   [
    13,

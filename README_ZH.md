@@ -15,7 +15,7 @@
 - **内联语气事件**：文本里直接写 `(laugh)`/`[笑]`、`(cough)`/`[咳嗽]`、`(sigh)`/`[叹气]` 等，自动合成对应语气。
 - **INT8 ConvRot 量化**：主干 + 文本编码器 INT8，深度解码器保持 bf16，显存降低约 27%、速度几乎不变。
 - **动态显存（AIMDO DynamicVRAM）**：对可转换权重分页，与其他模型共存时压低实时显存压力；`decode_mode=cuda_graphs` 时深度解码捕获为 CUDA graph，比 eager 快 3–4 倍。
-- **多人说话人分离（本仓库增强）**：一段多人对话 / 带背景音的音频 → 自动分离出每位说话人，导出干净可克隆音源；支持 **MossFormer2 两路物理分离**从根上解决两人同时说话的串音，并**保留背景音作为独立通道**。
+- **MOSS 转写 + 说话人分离（本仓库增强）**：基于 [MOSS-Transcribe-Diarize 0.9B](https://github.com/OpenMOSS/MOSS-Transcribe-Diarize) 端到端完成长音频转写与说话人分离（[S01]/[S02] 标签 + 时间戳），并可直接截取指定说话人的干净片段用于克隆。
 
 ---
 
@@ -28,11 +28,10 @@
 | **Breeze TTS 2 Voice Design** | 通过自然语言描述创建声音，无需参考音频（CFG 4）。 |
 | **Breeze TTS 2 Voice Direction** | 克隆参考声音，并用指令控制语气、情绪、语速和表达方式（CFG 4）。`stitch_reference` 可将原始参考片段拼接到生成语音之前或之后输出。 |
 | **Breeze TTS 2 Whisper Transcribe** | Whisper 辅助节点，生成克隆所需的精确转写文本。 |
-| **Breeze TTS 2 参考音频清洗** | 对参考音频降噪 + 峰值归一化，提升克隆质量。 |
 | **Breeze TTS 2 Speaker** | 多说话人节点中的一个具名角色。从 input 目录选择参考音频（下拉框支持浏览/上传，也可连线音频输入）进行克隆；或选择 `none` 并填写指令来设计声音。 |
 | **Breeze TTS 2 Multi-Speaker** | 一次性生成整段对话脚本 —— 支持纯文本 `名字:` 行或直接粘贴 JSON —— 最多接入 8 个说话人，可自由混合克隆声音与设计声音。 |
-| **Breeze TTS 2 多人说话人分离** | 从混合音频分离各说话人 + 背景音，导出高品质可克隆音源（见第六节）。 |
-| **Breeze TTS 2 说话人选择** | 从分离结果中挑出某一说话人（或某一段切片）作为克隆用的参考音频。 |
+| **Breeze TTS 2 MOSS 转写分离** | 基于 MOSS-Transcribe-Diarize 0.9B，端到端完成转写 + 说话人分离，输出转录文本、结构化分段、以及可直接喂给 Multi-Speaker 的剧本（见第六节）。 |
+| **Breeze TTS 2 MOSS 说话人提取** | 按说话人从原始音频截取干净片段（依据 MOSS 时间戳），产出克隆参考音频与该说话人文字稿。 |
 
 > 节点均自带中文界面（ComfyUI 原生 i18n 汉化补丁，原作者更新后只需重加该段补丁）。
 
@@ -88,26 +87,24 @@
   ```
   > 只需下载你想用的那个 `.safetensors` 构建；`config.json`、分词器文件与 `audio_tokenizer/` 所有构建共用。
 
-### 4.2 MossFormer2 分离模型（可选，多人物理分离用）
-来源：[alibabasglab/MossFormer2_SS_16K](https://huggingface.co/alibabasglab/MossFormer2_SS_16K)
+### 4.2 MOSS-Transcribe-Diarize 模型（转写分离节点用）
+来源：[OpenMOSS-Team/MOSS-Transcribe-Diarize](https://huggingface.co/OpenMOSS-Team/MOSS-Transcribe-Diarize)
 
-仅当你在"**Breeze TTS 2 多人说话人分离**"节点使用 `vocal_separation = MossFormer2两路物理分离` 时需要。请 **git clone（含 LFS 大文件）** 到以下任一路径（代码按序查找）：
+`Breeze TTS 2 MOSS 转写分离` 节点首次运行时会**自动从 HuggingFace 下载**该模型（约 2 GB，走 `transformers` + `trust_remote_code`，缓存在 HF 默认缓存目录）。你也可以提前手动下载到任意本地路径，再把节点 `model` 参数填成该路径。无需单独准备人声分离 / 聚类 / VAD 等模型——MOSS 在单一端到端模型里完成转写与说话人分离。
 
-```
-1) 环境变量 BREEZE_MOSSFORMER_CKPT 指向的目录
-2) E:\ComfyUI\models\checkpoints\MossFormer2_SS_16K      ← 推荐放这里
-3) ComfyUI-Breeze-TTS-2/checkpoints/MossFormer2_SS_16K
-```
+**下载镜像源**（节点新增 `hf_mirror` 下拉，默认 `auto`）：
 
-目录里必须包含 `last_best_checkpoint.pt`（约 670 MB）。例如：
+- `auto`（默认）：依次尝试 **环境变量 `HF_ENDPOINT` → 国内镜像 [hf-mirror.com](https://hf-mirror.com) → 官方 HuggingFace**，总有一个能下；
+- `hf-mirror.com`：强制走国内镜像（网络不通官方源时选这个）；
+- `huggingface.co`：强制官方源。
+
+> 也可直接设置环境变量 `HF_ENDPOINT=https://hf-mirror.com` 全局生效（优先级最高）。
+
 ```bash
-git lfs install
-git clone https://huggingface.co/alibabasglab/MossFormer2_SS_16K E:\ComfyUI\models\checkpoints\MossFormer2_SS_16K
+# 可选：提前用镜像下载
+pip install -U "huggingface_hub[cli]"
+HF_ENDPOINT=https://hf-mirror.com hf download OpenMOSS-Team/MOSS-Transcribe-Diarize
 ```
-> 权重缺失时，节点会**自动回退**到"仅声纹聚类(快)"，不报错、不中断。
-
-### 4.3 人声 / 背景分离模型（可选，自动下载）
-`mel_band_roformer`（人声分离）模型在"多人说话人分离"节点首次运行、且 `separate_vocals = enable` 时**自动下载**到节点目录的 `models/audio_separator/`，无需手动处理。
 
 ---
 
@@ -134,29 +131,28 @@ python -m pip install -U "transformers>=5.13.0"
 
 ---
 
-## 六、多人说话人分离（本仓库增强）
+## 六、MOSS 转写 + 说话人分离（本仓库增强）
 
-节点 **`Breeze TTS 2 多人说话人分离`**：输入一段混合音频（对话 / 带 BGM / 带背景音），输出每位说话人的干净可克隆音源，并支持把**背景音作为独立通道单独保留**。它把"说话人分离 → 高质量克隆素材导出"做成了一站式流程。
+基于 [MOSS-Transcribe-Diarize 0.9B](https://github.com/OpenMOSS/MOSS-Transcribe-Diarize) 的端到端模型，一次性完成**长音频转写 + 说话人分离 + 时间戳**，取代原先「参考音频清洗 / 多人说话人分离 / 说话人选择」三件套（旧方案依赖 wespeaker 声纹 + VAD + 聚类 + audio_separator，已弃用）。
 
-**两种说话人分离方案（`vocal_separation` 参数）：**
+**节点链路：**
+```
+Load Audio → Breeze TTS 2 MOSS 转写分离 → ( transcript / segments / script )
+                                    ├─ segments → Breeze TTS 2 MOSS 说话人提取 → AUDIO（某说话人干净片段）
+                                    └─ script   → Breeze TTS 2 Multi-Speaker（直接生成多人对话 TTS）
+```
 
-| 方案 | 做法 | 何时最强 |
-| --- | --- | --- |
-| **MossFormer2两路物理分离**（默认） | `vocal → MossFormer2 拆成两路干净音轨 → 各路再声纹聚类克隆` | 两人**同时说话**（重叠）时从根上消除串音 |
-| **仅声纹聚类(快)** | 不引入重模型，纯声纹聚类 | 单人主导、几乎没有重叠的音频，更快 |
+- **`Breeze TTS 2 MOSS 转写分离`**：输入音频，输出三样东西
+  - `transcript`：带 `[S01]`/`[S02]` 与时间戳的原始转录文本；
+  - `segments`：结构化分段列表（每段含 `start`/`end`/`speaker`/`text`），可接「说话人提取」节点；
+  - `script`：`S01: 文本` 形式的剧本，可直接喂给「多说话人对话」节点做 TTS。
+- **`Breeze TTS 2 MOSS 说话人提取`**：按说话人下标（`speaker_index`，0=S01 …）从**原始音频**按时间戳截取该说话人的所有片段并拼接，产出干净的克隆参考音频 + 该说话人文字稿。
 
-> MossFormer2 是双Speaker分离模型（num_spks=2），只干净分离**两人同时说话**；>2 人同时开腔时超出部分由"重叠感知裁剪 + 过滤 + 拼接"兜底削掉残余串音。
+**为什么用 MOSS 而不是旧方案：** MOSS 把 ASR 与 diarization 联合建模，说话人标签与文本、时间戳天然对齐，错误更少、对长音频与重叠语音更鲁棒，且不再需要单独下载人声分离 / 聚类 / VAD 等模型。
 
-**质量保障（无需你手动挑片段）：**
+**常用参数：** `model`（HF 仓库或本地路径）、`device`（auto/cuda:0/cpu）、`dtype`（auto/bf16/fp32）、`max_new_tokens`（长音频调大以免截断，如 65536）。
 
-- **重叠感知裁剪**：对每个分段细窗逐窗重算主导说话人，剔除被他人主导 / 模糊重叠的窗口，消除串音。
-- **纯度 / 时长过滤**：太短（`min_clone_duration`）或纯度过低（`min_purity`）的片段直接过滤，不进克隆素材。
-- **拼接兜底**：若某说话人有效语音总时长偏短，自动把所有有效片段拼接成一段完整结果（保证不出现"说一半被切断"的状态）。
-- **明确反馈而非报错**：若全程都无可用片段（如纯 BGM、无人声），节点会在报告里明确提示，并**不抛异常**。
-
-**常用参数：** `extract_channel`（人声(去背景)/人声+背景/仅背景音）、`separate_vocals`（enable/disable）、`num_speakers`（自动检测或强制）、`export_mode`（原样导出 / 自动切片）、`min_speaker_duration`、`target_sr`（克隆建议 24000）、`clean_clips`（降噪+归一化）。
-
-**实用建议：** 对"喜庆 / 纯 BGM / 人声被伴奏埋住"这类音频，建议把 `separate_vocals` 设为 **disable** 并改用 **仅声纹聚类(快)**——否则人声分离可能把整段判为器乐、人声轨接近静音导致无结果（即使已自动回退到原始音频，关掉分离也更省时、质量更好）。分离出的某位说话人可用 **`Breeze TTS 2 说话人选择`** 节点挑出，再接 `Voice Clone` 克隆。
+> 首次运行会自动下载模型（约 2 GB，见 4.2 节）。若缺少依赖，节点会给出明确报错：`pip install moss-transcribe-diarize`，并确保 `transformers >= 5.13`。
 
 ---
 

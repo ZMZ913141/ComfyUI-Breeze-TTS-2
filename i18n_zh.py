@@ -18,9 +18,6 @@ _DISPLAY_NAMES_ZH = {
     "BreezeTTS2Speaker": "Breeze TTS 2 说话人配置",
     "BreezeTTS2MultiSpeaker": "Breeze TTS 2 多说话人对话",
     "BreezeWhisperTranscribe": "Breeze Whisper 语音转录",
-    "BreezeTTS2RefAudioCleaner": "Breeze TTS 2 参考音频清洗",
-    "BreezeTTS2MultiSpeakerExtractor": "Breeze TTS 2 多人说话人分离",
-    "BreezeTTS2SpeakerSelector": "Breeze TTS 2 说话人选择",
 }
 
 # 英文 tooltip → 中文 tooltip
@@ -98,16 +95,6 @@ _TOOLTIP_MAP = {
     # Whisper
     "Load a Whisper ASR pipeline for transcribing reference audio.":
         "加载Whisper语音识别管线，用于转录参考音频。",
-
-    # 参考音频清洗
-    "人声/背景分离（用MDX-Net/UVR模型，首次运行会自动下载模型）":
-        "人声/背景分离（用MDX-Net/UVR模型，首次运行会自动下载模型）",
-    "频谱降噪（noisereduce）": "频谱降噪（noisereduce）",
-    "音量归一化到 -3dB": "音量归一化到 -3dB",
-    "修剪首尾静音": "修剪首尾静音",
-    "输出采样率（Breeze用24000）": "输出采样率（Breeze用24000）",
-    "降噪强度：light=轻微降噪保留细节，medium=平衡，aggressive=强力降噪":
-        "降噪强度：light=轻微降噪保留细节，medium=平衡，aggressive=强力降噪",
 }
 
 # 默认文本（英文 → 中文）
